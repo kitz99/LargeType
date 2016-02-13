@@ -2,6 +2,7 @@ import pygame
 import sys
 from pygame.locals import *
 import math
+import pdb
 
 
 class TextRectException:
@@ -29,12 +30,12 @@ class LargeType(object):
     def render_text_small(self):
         text = self.font.render(self.word, 1, (255, 255, 255))
         self.font_size = 1
-        #streching the text as far as it can 
+        #streching the text as far as it can
         while text.get_width() < self.resolution.current_w-80 and text.get_height() < self.resolution.current_h:
             self.font_size += 5
             self.font = pygame.font.Font(None, self.font_size)
             text = self.font.render(self.word, 1, (255, 255, 255))
-        
+
         self.text = text
 
     def paint(self):
@@ -62,7 +63,7 @@ class LargeType(object):
         else:
             fontSize = (self.resolution.current_w / text_width * 5) * fontSize + 5
             screen_width -= (3.0 / 100) * self.resolution.current_w
-            
+
         self.font = pygame.font.Font(None, fontSize)
         text = self.font.render(self.word, 1, (255, 255, 255))
         self.text = text
@@ -83,7 +84,7 @@ class LargeType(object):
                 accumulated_line = ""
                 for word in words:
                     test_line = accumulated_line + word + " "
-                    # Build the line while the words fit.    
+                    # Build the line while the words fit.
                     if self.font.size(test_line)[0] < screen_width:
                         accumulated_line = test_line
                     else:
@@ -116,7 +117,30 @@ class LargeType(object):
 
         return surface
 
+    def render_text_on_screen(self):
+        if len(self.word) < 10:
+            pygame.display.update()
+            self.render_text_small()
+            self.paint()
+            self.screen.blit(self.background, (0, 0))
+            pygame.display.flip()
+        else:
+            rendered_text = self.render_text()
+            my_rect = Rect(0, 0, self.resolution.current_w, self.resolution.current_h)
+            x = my_rect.width
+            y = my_rect.height
+            if len(self.word) < 30:
+                x = int(math.ceil(1./100 * x))
+            else:
+                x = int(math.ceil(3./100 * x))
+            y = int(math.ceil(20./100 * y))
 
+            if rendered_text:
+                self.screen.blit(rendered_text, (x, y))
+
+            pygame.display.update()
+        while not pygame.event.wait().type in (QUIT, KEYDOWN):
+            pass
 
 
 if __name__ == '__main__':
